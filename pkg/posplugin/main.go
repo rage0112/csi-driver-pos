@@ -17,16 +17,10 @@ limitations under the License.
 package main
 
 import (
-	"context"
 	"flag"
-	"fmt"
-	"net"
-	"net/http"
 	"os"
-	"strings"
-
-	//"github.com/rage0112/csi-driver-pos/pkg/pos"
 	"k8s.io/klog/v2"
+	"github.com/rage0112/csi-driver-pos/pkg/pos"
 )
 
 func init() {
@@ -43,7 +37,7 @@ var (
 
 func main() {
 	flag.Parse()
-/*
+
 	if *version {
 		info, err := pos.GetVersionYAML()
 		if err != nil {
@@ -58,10 +52,10 @@ func main() {
 	}
 
 	handle()
-	*/
+
 	os.Exit(0)
 }
-/*
+
 func handle() {
 
 	driver := pos.NewDriver(*nodeID)
@@ -69,5 +63,4 @@ func handle() {
 		klog.Fatalln("Failed to initialize smb CSI Driver")
 	}
 	driver.Run(*endpoint, *kubeconfig, false)
-
-}*/
+}
