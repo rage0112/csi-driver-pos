@@ -25,7 +25,7 @@ import (
 	"os"
 	"strings"
 
-	//"github.com/kubernetes-csi/csi-driver-smb/pkg/smb"
+	//"github.com/rage0112/csi-driver-pos/pkg/pos"
 	"k8s.io/klog/v2"
 )
 
@@ -43,9 +43,9 @@ var (
 
 func main() {
 	flag.Parse()
-
+/*
 	if *version {
-		info, err := smb.GetVersionYAML()
+		info, err := pos.GetVersionYAML()
 		if err != nil {
 			klog.Fatalln(err)
 		}
@@ -58,9 +58,10 @@ func main() {
 	}
 
 	handle()
+	*/
 	os.Exit(0)
 }
-
+/*
 func handle() {
 
 	driver := pos.NewDriver(*nodeID)
@@ -69,4 +70,4 @@ func handle() {
 	}
 	driver.Run(*endpoint, *kubeconfig, false)
 
-}
+}*/
