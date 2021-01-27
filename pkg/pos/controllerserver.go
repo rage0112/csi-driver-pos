@@ -24,9 +24,14 @@ import (
 
 	"github.com/container-storage-interface/spec/lib/go/csi"
 	"github.com/golang/glog"
+	"github.com/google/uuid"
+
+
 	"golang.org/x/net/context"
 	"google.golang.org/grpc/codes"
 	"google.golang.org/grpc/status"
+
+        iBoFOS "pnconnector/src/routers/m9k/api/ibofos"
 )
 
 // ControllerServer controller server setting
@@ -104,6 +109,12 @@ func (cs *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	}
 	// Remove capacity setting when provisioner 1.4.0 is available with fix for
 	// https://github.com/kubernetes-csi/external-provisioner/pull/271
+
+	newUUID, err := uuid.NewUUID()
+	xrId := newUUID.String()
+
+	iBoFOS.IBoFOSInfo(xrId, nil)
+
 	return &csi.CreateVolumeResponse{Volume: cs.posVolToCSI(posVol, reqCapacity)}, nil
 }
 
