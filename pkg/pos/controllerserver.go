@@ -110,11 +110,6 @@ func (cs *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 	// Remove capacity setting when provisioner 1.4.0 is available with fix for
 	// https://github.com/kubernetes-csi/external-provisioner/pull/271
 
-	newUUID, err := uuid.NewUUID()
-	xrId := newUUID.String()
-
-	iBoFOS.IBoFOSInfo(xrId, nil)
-
 	return &csi.CreateVolumeResponse{Volume: cs.posVolToCSI(posVol, reqCapacity)}, nil
 }
 
@@ -317,6 +312,11 @@ func (cs *ControllerServer) newPOSVolume(name string, size int64, params map[str
 		size:    size,
 	}
 	vol.id = cs.getVolumeIDFromNfsVol(vol)
+
+	newUUID, err := uuid.NewUUID()
+	xrId := newUUID.String()
+
+	iBoFOS.IBoFOSInfo(xrId, nil)
 
 	return vol, nil
 }

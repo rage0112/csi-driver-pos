@@ -48,11 +48,11 @@ func main() {
 		fmt.Println(info)
 		os.Exit(0)
 	}
-	*/
 	if *nodeID == "" {
 		// nodeid is not needed in controller component
 		klog.Warning("nodeid is empty")
 	}
+	*/
 
 	handle()
 
@@ -64,8 +64,10 @@ func handle() {
 	var perm *uint32
 	
 	driver := pos.NewPOSdriver(*nodeID, "moon", perm)
+	/*
 	if driver == nil {
 		klog.Fatalln("Failed to initialize smb CSI Driver")
 	}
+	*/
 	driver.Run(false)
 }
