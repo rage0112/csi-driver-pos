@@ -18,14 +18,14 @@ package main
 
 import (
 	"flag"
-	_"fmt"
+	"fmt"
 	"os"
-	"k8s.io/klog/v2"
+	_ "k8s.io/klog/v2"
 	"github.com/rage0112/csi-driver-pos/pkg/pos"
 )
 
 func init() {
-	klog.InitFlags(nil)
+	//klog.InitFlags(nil)
 }
 
 var (
@@ -39,21 +39,6 @@ var (
 func main() {
 	flag.Parse()
 
-	/*
-	if *version {
-		info, err := pos.GetVersionYAML()
-		if err != nil {
-			klog.Fatalln(err)
-		}
-		fmt.Println(info)
-		os.Exit(0)
-	}
-	if *nodeID == "" {
-		// nodeid is not needed in controller component
-		klog.Warning("nodeid is empty")
-	}
-	*/
-
 	handle()
 
 	os.Exit(0)
@@ -62,12 +47,14 @@ func main() {
 func handle() {
 
 	var perm *uint32
-	
-	driver := pos.NewPOSdriver(*nodeID, "moon", perm)
-	/*
+
+	fmt.Println("Initialize POS CSI Driver")
+
+	driver := pos.NewPOSdriver(*nodeID, "unix://moon", perm)
+
 	if driver == nil {
-		klog.Fatalln("Failed to initialize smb CSI Driver")
+		fmt.Println("Failed to initialize POS CSI Driver")
 	}
-	*/
-	driver.Run(false)
+
+	driver.Run(true)
 }

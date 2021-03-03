@@ -311,9 +311,10 @@ func (cs *ControllerServer) newPOSVolume(name string, size int64, params map[str
 		subDir:  name,
 		size:    size,
 	}
+
 	vol.id = cs.getVolumeIDFromNfsVol(vol)
 
-	newUUID, err := uuid.NewUUID()
+	newUUID, _ := uuid.NewUUID()
 	xrId := newUUID.String()
 
 	iBoFOS.IBoFOSInfo(xrId, nil)
