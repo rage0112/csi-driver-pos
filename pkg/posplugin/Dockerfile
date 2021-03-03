@@ -12,15 +12,11 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 
-ARG LDFLAGS
-ARG ARCH
-
-FROM k8s.gcr.io/build-image/debian-base-${ARCH}:v2.1.3
-COPY ./_output/posplugin /posplugin
+FROM k8s.gcr.io/build-image/debian-base-amd64:v2.1.3
+COPY ./posplugin /posplugin
 RUN clean-install ca-certificates cifs-utils util-linux e2fsprogs mount udev xfsprogs
 
-LABEL maintainers="hs0112.moon"
+LABEL maintainers="rage0112"
 LABEL description="POS CSI Driver"
 
-COPY ./_output/posplugin /posplugin
-ENTRYPOINT ["/posplugin"]
+#ENTRYPOINT ["/posplugin"]
