@@ -15,8 +15,10 @@
 FROM k8s.gcr.io/build-image/debian-base-amd64:v2.1.3
 COPY ./posplugin /posplugin
 RUN clean-install ca-certificates cifs-utils util-linux e2fsprogs mount udev xfsprogs
+RUN mkdir /home/temp
+RUN chmod 777 /home/temp
 
 LABEL maintainers="rage0112"
 LABEL description="POS CSI Driver"
 
-#ENTRYPOINT ["/posplugin"]
+ENTRYPOINT ["/posplugin"]
