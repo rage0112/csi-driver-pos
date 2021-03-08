@@ -157,7 +157,7 @@ run () {
 
 # rbac rules
 echo "applying RBAC rules"
-for component in CSI_PROVISIONER CSI_ATTACHER CSI_SNAPSHOTTER CSI_RESIZER CSI_EXTERNALHEALTH_MONITOR; do
+for component in CSI_PROVISIONER CSI_ATTACHER CSI_RESIZER CSI_EXTERNALHEALTH_MONITOR; do
     eval current="\${${component}_RBAC}"
     eval original="\${${component}_RBAC_YAML}"
     if [ "$current" != "$original" ]; then
@@ -234,12 +234,12 @@ while [ $(minikube kubectl -- get pods 2>/dev/null | grep '^csi-pos.* Running ' 
 done
 
 # deploy snapshotclass
-echo "deploying snapshotclass based on snapshotter version"
-snapshotter_version="$(rbac_version "${BASE_DIR}/pos/csi-pos-snapshotter.yaml" csi-snapshotter false)"
-driver_version="$(basename "${BASE_DIR}")"
-if version_gt "$driver_version" "1.16"; then
-    minikube kubectl -- apply -f "${BASE_DIR}/snapshotter/csi-pos-snapshotclass.yaml" 
-fi
+#echo "deploying snapshotclass based on snapshotter version"
+#snapshotter_version="$(rbac_version "${BASE_DIR}/pos/csi-pos-snapshotter.yaml" csi-snapshotter false)"
+#driver_version="$(basename "${BASE_DIR}")"
+#if version_gt "$driver_version" "1.16"; then
+#    minikube kubectl -- apply -f "${BASE_DIR}/snapshotter/csi-pos-snapshotclass.yaml" 
+#fi
 
 # Create a test driver configuration in the place where the prow job
 # expects it?

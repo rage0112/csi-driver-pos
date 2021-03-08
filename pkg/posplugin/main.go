@@ -50,7 +50,7 @@ func handle() {
 
 	fmt.Println("Initialize POS CSI Driver")
 
-	driver := pos.NewPOSdriver(*nodeID, "unix://home/temp/a", perm)
+	driver := pos.NewPOSdriver(*nodeID, "unix://tmp/csi.sock", perm)
 
 	if driver == nil {
 		fmt.Println("Failed to initialize POS CSI Driver")

@@ -87,19 +87,19 @@ func (cs *ControllerServer) CreateVolume(ctx context.Context, req *csi.CreateVol
 		return nil, status.Error(codes.InvalidArgument, err.Error())
 	}
 
-	var volCap *csi.VolumeCapability
-	if len(req.GetVolumeCapabilities()) > 0 {
-		volCap = req.GetVolumeCapabilities()[0]
-	}
+	//var volCap *csi.VolumeCapability
+	//if len(req.GetVolumeCapabilities()) > 0 {
+	//	volCap = req.GetVolumeCapabilities()[0]
+	//}
 	// Mount pos base share so we can create a subdirectory
-	if err = cs.internalMount(ctx, posVol, volCap); err != nil {
-		return nil, status.Errorf(codes.Internal, "failed to mount pos server: %v", err.Error())
-	}
-	defer func() {
-		if err = cs.internalUnmount(ctx, posVol); err != nil {
-			glog.Warningf("failed to unmount pos server: %v", err.Error())
-		}
-	}()
+	//if err = cs.internalMount(ctx, posVol, volCap); err != nil {
+	//	return nil, status.Errorf(codes.Internal, "failed to mount pos server: %v", err.Error())
+	//}
+	//defer func() {
+	//	if err = cs.internalUnmount(ctx, posVol); err != nil {
+	//		glog.Warningf("failed to unmount pos server: %v", err.Error())
+	//	}
+	//}()
 
 	// Create subdirectory under base-dir
 	// TODO: revisit permissions
@@ -119,7 +119,7 @@ func (cs *ControllerServer) DeleteVolume(ctx context.Context, req *csi.DeleteVol
 	if volumeID == "" {
 		return nil, status.Error(codes.InvalidArgument, "volume id is empty")
 	}
-	posVol, err := cs.getNfsVolFromID(volumeID)
+	posVol, err := cs.getCSIVolFromID(volumeID)
 	if err != nil {
 		// An invalid ID should be treated as doesn't exist
 		glog.Warningf("failed to get pos volume for volume id %v deletion: %v", volumeID, err)
@@ -172,7 +172,56 @@ func (cs *ControllerServer) ValidateVolumeCapabilities(ctx context.Context, req 
 }
 
 func (cs *ControllerServer) ListVolumes(ctx context.Context, req *csi.ListVolumesRequest) (*csi.ListVolumesResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "")
+	volumeRes := &csi.ListVolumesResponse{
+        Entries: []*csi.ListVolumesResponse_Entry{},
+    }
+/*
+    var (
+        startIdx, volumesLength, maxLength int64
+        hpVolume                           hostPathVolume
+    )
+
+    // Lock before acting on global state. A production-quality
+    // driver might use more fine-grained locking.
+
+    volumeIds := hp.getSortedVolumeIDs()
+    if req.StartingToken == "" {
+        req.StartingToken = "1"
+    }
+
+    startIdx, err := strconv.ParseInt(req.StartingToken, 10, 32)
+    if err != nil {
+        return nil, status.Error(codes.Aborted, "The type of startingToken should be integer")
+    }
+
+    volumesLength = int64(len(volumeIds))
+    maxLength = int64(req.MaxEntries)
+
+    if maxLength > volumesLength || maxLength <= 0 {
+        maxLength = volumesLength
+    }
+
+    for index := startIdx - 1; index < volumesLength && index < maxLength; index++ {
+        hpVolume = hp.volumes[volumeIds[index]]
+        healthy, msg := hp.doHealthCheckInControllerSide(volumeIds[index])
+        glog.V(3).Infof("Healthy state: %s Volume: %t", hpVolume.VolName, healthy)
+        volumeRes.Entries = append(volumeRes.Entries, &csi.ListVolumesResponse_Entry{
+            Volume: &csi.Volume{
+                VolumeId:      hpVolume.VolID,
+                CapacityBytes: hpVolume.VolSize,
+            },
+            Status: &csi.ListVolumesResponse_VolumeStatus{
+                PublishedNodeIds: []string{hpVolume.NodeID},
+                VolumeCondition: &csi.VolumeCondition{
+                    Abnormal: !healthy,
+                    Message:  msg,
+                },
+            },
+        })
+    }
+*/
+    glog.V(5).Infof("Volumes are: %+v", *volumeRes)
+    return volumeRes, nil
 }
 
 func (cs *ControllerServer) GetCapacity(ctx context.Context, req *csi.GetCapacityRequest) (*csi.GetCapacityResponse, error) {
@@ -312,11 +361,12 @@ func (cs *ControllerServer) newPOSVolume(name string, size int64, params map[str
 		size:    size,
 	}
 
-	vol.id = cs.getVolumeIDFromNfsVol(vol)
+	vol.id = cs.getVolumeIDFromCSIVol(vol)
 
 	newUUID, _ := uuid.NewUUID()
 	xrId := newUUID.String()
 
+	fmt.Println(" iBoFOS.IBoFOSInfo(xrId, nil)")
 	iBoFOS.IBoFOSInfo(xrId, nil)
 
 	return vol, nil
@@ -360,7 +410,7 @@ func (cs *ControllerServer) posVolToCSI(vol *posVolume, reqCapacity int64) *csi.
 }
 
 // Given a posVolume, return a CSI volume id
-func (cs *ControllerServer) getVolumeIDFromNfsVol(vol *posVolume) string {
+func (cs *ControllerServer) getVolumeIDFromCSIVol(vol *posVolume) string {
 	idElements := make([]string, totalIDElements)
 	idElements[idServer] = strings.Trim(vol.server, "/")
 	idElements[idBaseDir] = strings.Trim(vol.baseDir, "/")
@@ -369,7 +419,7 @@ func (cs *ControllerServer) getVolumeIDFromNfsVol(vol *posVolume) string {
 }
 
 // Given a CSI volume id, return a posVolume
-func (cs *ControllerServer) getNfsVolFromID(id string) (*posVolume, error) {
+func (cs *ControllerServer) getCSIVolFromID(id string) (*posVolume, error) {
 	tokens := strings.Split(id, "/")
 	if len(tokens) != totalIDElements {
 		return nil, fmt.Errorf("volume id %q unexpected format: got %v token(s) instead of %v", id, len(tokens), totalIDElements)
